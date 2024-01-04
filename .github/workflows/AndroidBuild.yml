@@ -20,6 +20,8 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
+      - run: echo $JAVA_HOME
+
       - name: Run Lint
         run: ./gradlew lintDebug
 
