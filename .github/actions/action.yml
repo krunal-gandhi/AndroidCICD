@@ -1,0 +1,14 @@
+name: Android Setup and Checkout
+description: Sets up Java and checks out the code for Android projects
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Set up Java JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17' # Replace with the desired Java version
+        distribution: 'adopt' # Or the distribution you prefer
