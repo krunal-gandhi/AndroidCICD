@@ -1,16 +1,18 @@
 name: AndroidBuild
 on:
-  pull_request:
+  push:
     branches:
       - main
-  push:
+  pull_request:
     branches:
       - main
 
 jobs:
-  setup-java:
+  setup-and-build:
     runs-on: ubuntu-latest
-    name: Set up Java
+    name: Setup and Build
+    env:
+      JAVA_HOME: ${{ steps.setup-java.outputs.java-home }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
@@ -20,56 +22,28 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt'
-      - name: Save JAVA_HOME to file
-        run: echo "$JAVA_HOME" > java_home.txt
 
-  lint:
-    runs-on: ubuntu-latest
-    needs:
-      - setup-java
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.1.1
-
-      - name: Read JAVA_HOME from file
-        run: |
-            export JAVA_HOME=$(cat java_home.txt)
-            echo "Java Home is set to $JAVA_HOME"
-
-#      - name: Set Java Home to Java 17
-#        run: |
-#          echo "Java 17 is installed at $JAVA_HOME"
-#          export JAVA_HOME=$(echo "$JAVA_HOME")
-#          echo "Java Home has been set to $JAVA_HOME"
-
-      - name: Run Lint
-        run: ./gradlew lintDebug
-
-      - name: Upload html test report
-        uses: actions/upload-artifact@v4.0.0
-        with:
-          name: lint.html
-          path: app/build/reports/lint-results-debug.html
-
-  build:
-    needs:
-      - lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.1.1
-
-      - name: Setup Java JDK
-        uses: actions/setup-java@v4.0.0
-        with:
-          java-version: '17'
-          distribution: 'adopt'
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4.0.0
-        with:
-          name: AndroidCICD.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+      - name: Run tests
+        run: ./gradlew test
+
+  additional-job:
+    runs-on: ubuntu-latest
+    name: Another Job Using Java
+    needs: setup-and-build
+    env:
+      JAVA_HOME: ${{ needs.setup-and-build.outputs.java-home }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Set Java Home to Java 17
+        run: |
+          echo "Java 17 is installed at $JAVA_HOME"
+          export JAVA_HOME=$(echo "$JAVA_HOME")
+          echo "Java Home has been set to $JAVA_HOME"
