@@ -8,8 +8,9 @@ on:
       - main
 
 jobs:
-  lint:
+  setup-java:
     runs-on: ubuntu-latest
+    name: Set up Java
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
@@ -19,6 +20,20 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt'
+
+  lint:
+    runs-on: ubuntu-latest
+    needs:
+      - setup-java
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+#      - name: Setup Java JDK
+#        uses: actions/setup-java@v4.0.0
+#        with:
+#          java-version: '17'
+#          distribution: 'adopt'
 
       - name: Set Java Home to Java 17
         run: |
