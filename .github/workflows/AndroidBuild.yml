@@ -14,13 +14,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
 
-#      - name: Setup Java JDK
-#        uses: actions/setup-java@v4.0.0
-#        with:
-#          java-version: '17'
-#          distribution: 'adopt'
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.0.0
+        with:
+          java-version: '17'
+          distribution: 'adopt'
 
-      - run: echo $JAVA_HOME
+      - name: Set Java Home to Java 17
+        run: |
+          echo "Java 17 is installed at $JAVA_HOME"
+          export JAVA_HOME=$(echo "$JAVA_HOME")
+          echo "Java Home has been set to $JAVA_HOME"
 
       - name: Run Lint
         run: ./gradlew lintDebug
