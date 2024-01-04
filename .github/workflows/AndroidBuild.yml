@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup and Checkout
-        uses: ./setup.yml
+        uses: ./SetupAndCheckout.yml
 
       - name: Run Lint
         run: ./gradlew lintDebug
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup and Checkout
-        uses: ./setup.yml
+        uses: ./SetupAndCheckout.yml
 
       - name: Build with Gradle
         run: ./gradlew build
