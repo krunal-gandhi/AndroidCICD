@@ -1,5 +1,4 @@
-name: Android Build & Test
-
+name: AndroidBuild
 on:
   pull_request:
     branches:
@@ -8,12 +7,9 @@ on:
     branches:
       - main
 
-
 jobs:
-  setup-java:
+  lint:
     runs-on: ubuntu-latest
-    name: Set up Java
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
@@ -21,38 +17,37 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v4.0.0
         with:
-          distribution: 'adopt-hotspot'
-          java-version: '11'
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Run Lint
+        run: ./gradlew lintDebug
+
+      - name: Upload html test report
+        uses: actions/upload-artifact@v4.0.0
+        with:
+          name: lint.html
+          path: app/build/reports/lint-results-debug.html
 
   build:
+    needs:
+      - lint
     runs-on: ubuntu-latest
-    needs: setup-java
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.0.0
+        with:
+          java-version: '17'
+          distribution: 'adopt'
 
       - name: Build with Gradle
-        run: ./gradlew assembleDebug # Modify this according to your build command
+        run: ./gradlew build
 
-  test:
-    runs-on: ubuntu-latest
-    needs: setup-java
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.1.1
-
-      - name: Run tests
-        run: ./gradlew test # Modify this according to your test command
-
-  lint:
-    runs-on: ubuntu-latest
-    needs: setup-java
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Run lint checks
-        run: ./gradlew lint # Modify this according to your lint command
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.0.0
+        with:
+          name: AndroidCICD.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
