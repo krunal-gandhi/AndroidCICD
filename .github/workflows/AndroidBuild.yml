@@ -1,5 +1,4 @@
 name: AndroidBuild
-
 on:
   pull_request:
     branches:
@@ -9,17 +8,46 @@ on:
       - main
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4.1.1
 
-      - name: Setup and Checkout
-        uses: ./.github/actions/action.yml
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.0.0
+        with:
+          java-version: '17'
+          distribution: 'adopt'
 
-      # Add more steps for your build process here
-      # For example:
+      - name: Run Lint
+        run: ./gradlew lintDebug
+
+      - name: Upload html test report
+        uses: actions/upload-artifact@v4.0.0
+        with:
+          name: lint.html
+          path: app/build/reports/lint-results-debug.html
+
+  build:
+    needs:
+      - lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.0.0
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
       - name: Build with Gradle
         run: ./gradlew build
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.0.0
+        with:
+          name: AndroidCICD.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
