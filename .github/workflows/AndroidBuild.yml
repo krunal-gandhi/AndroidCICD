@@ -49,4 +49,4 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run lint checks
-        run: ./gradlew lint # Modify this according to your lint command
+        run: ./gradlew lint
